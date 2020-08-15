@@ -1,16 +1,12 @@
 
 This project is still Working In Progress.
 
-VulcanoVG aims to be an implementation of the Khronos Group OpenVG 1.1 Lite 
-provisional specification released in May 2020.
-
-VulcanoVG will contain both EGL and OpenVG implementation on Vulkan.
-It would perform with Vulkan applications or stand-alone in using EGL, OpenVG.
+VulcanoEGL aims to be an implementation of the Khronos Group EGL specification
+which perform with Vulkan application.
+It means that VulcanoEGL would prepare rendering by Vulkan.
 
 The EGL implementation in this project is actually based on mesa egl (https://gitlab.freedesktop.org/mesa/mesa/-/tree/master/src/egl).
-Also, OpenVG implementation in this project is based on ShivaVG (https://github.com/ileben/ShivaVG).
-Now, I am trying to integrate both these implementations to Vulkan.
-
+Now, I am trying to integrate the implementation to Vulkan.
 
   I.   Build
   II.  Testing
@@ -28,9 +24,9 @@ I. Build
 
 * Compiling under UNIX systems:
 
-    $ cd VulcanoVG
+    $ cd VulcanoEGL
     $ sh autogen.sh
-    $ ./configure LIBS="-lGL -lGLU -lglut -ljpeg -lvulkan"
+    $ ./configure LIBS="-lvulkan"
     $ make
  
 * Compiling on Mac:
@@ -61,53 +57,13 @@ II. Testing
 
   * test_egl
 
-    Initialize EGL and create context, surface, and fill the frame buffer.
-
-  * test_vgu
-
-    Constructs some path primitives using the VGU API.
-
-  * test_tiger
-
-    The most simple performance test. It draws the well known svg
-    tiger using just simple stroke and fill of solid colors. It
-    consists of 240 paths.
-
-  * test_dash
-
-    Shows different stroke dashing modes.
-
-  * test_linear
-
-    A rectangle drawn using 3-color linear gradient fill paint
-
-  * test_radial
-
-    A rectangle drawn using 3-color radial gradient fill paint
-
-  * test_interpolate
-
-    Interpolates between two paths - an apple and a pear.
-
-  * test_image
-
-    Images are drawn using VG_DRAW_IMAGE_MULTIPLY image mode to be
-    multiplied with radial gradient fill paint.
-
-  * test_pattern
-
-    An image is drawn in multiply mode with an image pattern fill
-    paint.
+    Initialize EGL and create context, surface, and drawing the frame buffer using Vulkan.
 
 III. Implementation status
 =============================
 
-*OpenVG:
-  
-  Actually, not implemented any api yet.
-  In drawing with OpenVG, We need to implement EGL at first.
-
 * EGL:
 
-  See src/EGL
+  See src/EGL, examples/test_egl.c 
+  and running test_egl.
   

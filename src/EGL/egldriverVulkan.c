@@ -22,10 +22,6 @@
 #include "eglcontext.h"
 #include "eglsurface.h"
 
-#include <VG/openvg.h>
-#include "shContext.h"
-
-
 static VkInstance
 _getInstance(
    _EGLDisplay *disp // in/out
@@ -361,82 +357,10 @@ _Initialize(
    return EGL_TRUE;
 }
 
-extern void shLoadExtensions(VGContext *c);
-static bool _initVGContext(VGContext *c)
-{
-  /* Surface info */
-  c->surfaceWidth = 0;
-  c->surfaceHeight = 0;
-  
-  /* GetString info */
-  strncpy(c->vendor, "John doe", sizeof(c->vendor));
-  strncpy(c->renderer, "VulcanoVG 0.1.0", sizeof(c->renderer));
-  strncpy(c->version, "1.0", sizeof(c->version));
-  strncpy(c->extensions, "", sizeof(c->extensions));
-  
-  /* Mode settings */
-  c->matrixMode = VG_MATRIX_PATH_USER_TO_SURFACE;
-  c->fillRule = VG_EVEN_ODD;
-  c->imageQuality = VG_IMAGE_QUALITY_FASTER;
-  c->renderingQuality = VG_RENDERING_QUALITY_BETTER;
-  c->blendMode = VG_BLEND_SRC_OVER;
-  c->imageMode = VG_DRAW_IMAGE_NORMAL;
-  
-  /* Scissor rectangles */
-  SH_INITOBJ(SHRectArray, c->scissor);
-  c->scissoring = VG_FALSE;
-  c->masking = VG_FALSE;
-  
-  /* Stroke parameters */
-  c->strokeLineWidth = 1.0f;
-  c->strokeCapStyle = VG_CAP_BUTT;
-  c->strokeJoinStyle = VG_JOIN_MITER;
-  c->strokeMiterLimit = 4.0f;
-  c->strokeDashPhase = 0.0f;
-  c->strokeDashPhaseReset = VG_FALSE;
-  SH_INITOBJ(SHFloatArray, c->strokeDashPattern);
-  
-  /* Edge fill color for vgConvolve and pattern paint */
-  CSET(c->tileFillColor, 0,0,0,0);
-  
-  /* Color for vgClear */
-  CSET(c->clearColor, 0,0,0,0);
-  
-  /* Color components layout inside pixel */
-  c->pixelLayout = VG_PIXEL_LAYOUT_UNKNOWN;
-  
-  /* Source format for image filters */
-  c->filterFormatLinear = VG_FALSE;
-  c->filterFormatPremultiplied = VG_FALSE;
-  c->filterChannelMask = VG_RED|VG_GREEN|VG_BLUE|VG_ALPHA;
-  
-  /* Matrices */
-  SH_INITOBJ(SHMatrix3x3, c->pathTransform);
-  SH_INITOBJ(SHMatrix3x3, c->imageTransform);
-  SH_INITOBJ(SHMatrix3x3, c->fillTransform);
-  SH_INITOBJ(SHMatrix3x3, c->strokeTransform);
-  
-  /* Paints */
-  c->fillPaint = NULL;
-  c->strokePaint = NULL;
-  SH_INITOBJ(SHPaint, c->defaultPaint);
-  
-  /* Error */
-  c->error = VG_NO_ERROR;
-  
-  /* Resources */
-  SH_INITOBJ(SHPathArray, c->paths);
-  SH_INITOBJ(SHPaintArray, c->paints);
-  SH_INITOBJ(SHImageArray, c->images);
-
-  shLoadExtensions(c);
-
-  return true;
-}
-
 typedef struct {
    _EGLContext base;
-   VGContext   vg;
+// TODO: Support for OpenVG context
+//   VGContext   vg;
 } VuContext;
 
 static _EGLContext *
@@ -451,9 +375,9 @@ _CreateContext(_EGLDriver *drv, _EGLDisplay *disp, _EGLConfig *conf,
 
    if (!_eglInitContext(&vuCtx->base, disp, conf, attrib_list))
       goto cleanup;
-
-   if(!_initVGContext(&vuCtx->vg))
-      goto cleanup;
+// TODO: Support for OpenVG context
+//   if(!_initVGContext(&vuCtx->vg))
+//      goto cleanup;
 
    return &vuCtx->base;
 
@@ -700,6 +624,12 @@ cleanup:
    return NULL;
 }
 
+typedef struct {
+   uint32_t width;
+   uint32_t height;
+   VkImageView vkImageView;
+} VCClientBuffer;
+
 _EGLSurface* _createPbufferFromClientBuffer(
    _EGLDriver *drv,
    _EGLDisplay *disp,
@@ -711,7 +641,7 @@ _EGLSurface* _createPbufferFromClientBuffer(
    _EGLDevice    *dev    = _getPrimaryDevice(disp);
    VuSurface     *vuSurf = malloc(sizeof(VuSurface));
    _EGLSurface   *surf = &vuSurf->base;
-   SHImage       *image  = (SHImage*)buffer;
+   VCClientBuffer *image  = (VCClientBuffer*)buffer;
 
    if(buftype != EGL_OPENVG_IMAGE);
       goto cleanup;
